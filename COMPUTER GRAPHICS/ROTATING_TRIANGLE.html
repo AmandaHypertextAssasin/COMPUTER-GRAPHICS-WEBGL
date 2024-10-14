@@ -1,0 +1,134 @@
+<DOCTYPE html>
+<html lang = "en">
+	<head>
+		<meta charset = "UTF-8">
+		<title>ROTATING TRIANGLE</title>
+		<style>
+		canvas {
+			display :block;
+			margin : 100px auto;
+		}
+		</style>
+	</head>
+	<body>
+	<canvas width =600 height=600></canvas>
+	<script id ="shader-vs" type ="x-shader/x-fragment">
+	/*
+	
+	STEP 1: ACCESS WEBGL CONTEXT
+	*/
+	const canvasDom = document.querySelector('canvas');
+	const gl = canvasDom.getContext('webgl');
+	
+	const canvasWidth=canvasDom.clientWidth;
+	const canvasHeight=canvasDom.clientHeight;
+	
+	//stt viewport when it comes to canvas resizing
+	//gl.viewport(0,0,canvasWidth,canvasHeight);
+	
+	gl.clearColor(1,1,1,1);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+	
+	/*
+	STEP 2: CREATE SHADERS AND CLEAR PROGRAM
+	*/
+	function createShader(gl,type,shaderSource)
+	{
+	const shader = gl.createShader(type);
+	gl.shaderSource(shader,shaderSource);
+	gl.compileShader(shader);
+	
+	const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+	if(!success)
+	{
+	console.warn(gl.getShaderInfoLog(shader));
+	gl.deleteShader(shader);
+	}
+	
+	return shader;
+	
+	
+	const vertexShaderSource = 
+	//an attribute will receive data  from a buffer
+	attribute vec2 position;
+	uniformvec2 resolution;
+	varying vec4 v_color;
+	
+	void main(){
+	vec2 gl_glSpacePosition = (position/resolution)*2.0 - 1.0;
+	
+	gl_Position =vec4(glSpacePosition* vec2(1,-1),0,1);
+	v_color = gl_Position * 0.5 + 0.5* cos(0,0);
+	}
+	;
+	
+	
+	const fragmentShaderSource = 
+	precision mediump float;
+	varying vec4 v_color;
+	
+	void main(){
+	gl_FragColor = vec4(1,1,0,0);
+	}
+	;
+	
+	const vertexShader = createShader(gl,gl.VERTEX_SHADER,vertexShaderSource); 
+	const fragmentShader = createShader(gl,gl.FRAGMENT_sHADER,fragmentShaderSource);
+	
+	function createProgram(gl, vertexShader ,fragmentshader){=
+	
+	const program = createProgram(gl, vertexShader , fragmentShader);
+	
+	/*
+	STEP 3 
+	CONFIGURATION 
+	*/
+	
+	gl.useProgram(program);
+	const positionAttributeLocation = gl.getAttributeLocation(program,'position');
+	gl.enableVertexAttribArray(positionAttributeLocation);
+	
+	const positionBuffer = gl.createBuffer();
+	
+	//in webgl we can manipulate many resources on global bind points
+	//treat bind points as internal global variables
+	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+	
+	gl.vertexArrayPointer(positionAttributeLocation,2,gl.FLOAT,false,0,0);
+	
+	const resolutionUniformLocation = gl.getUniformLocation(program,'resolution');
+	gl.uniform2f(resolutionUniformLocation ,canvasWidth , canvasHeight);
+	
+	/*
+	STEP 4 
+	
+	BIND DATA AND CALL DRAWARRAYS 
+	*/
+	let
+	
+	function draw(){
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		const pointList = [];
+		
+		let centerX = canvasWidth / 2;
+		let centerY = canvasHeight /2;
+		
+		pointList.push(centerX + canvasWidth * Math.sin(angle));
+		pointList.push(centerY - (canvasHeight / 2 )  * Math.sin(angle));
+		pointList.push(centerX + (canvasWidth / 2) * Math.sin(angle));
+		pointList.push(centerY);
+		pointList.push(centerX - (canvasWidth / 2) * Math.sin(angle));
+		pointList.push(centerY);
+		
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointList),gl.STATIC_DRAW);
+		gl.drawArrays(gl.TRIANGLES,0,3);
+		angle += 0.005;
+		requestAnimationFrame(draw);
+	/*
+	*/
+	}
+	requestAnimationFrame(draw);
+	</body>
+	</script>
+	
+</html>
